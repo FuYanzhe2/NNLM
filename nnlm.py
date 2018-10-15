@@ -51,10 +51,10 @@ def main():
             b_2 = tf.Variable(tf.random_normal([args.batch_size, args.vocab_size]))
 
         def infer_output(input_data):
-            '''
+            """
             hidden = tanh(x * H + b_1)
             output = softmax(x * W + hidden * U + b_2)
-            '''
+            """
             input_data_emb = tf.nn.embedding_lookup(embeddings, input_data)
             input_data_emb = tf.reshape(input_data_emb, [-1, args.win_size * args.word_dim])
             hidden = tf.tanh(tf.matmul(input_data_emb, weight_h)) + b_1
