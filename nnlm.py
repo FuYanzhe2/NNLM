@@ -59,14 +59,17 @@ def main():
             input_data_emb = tf.reshape(input_data_emb, [-1, args.win_size * args.word_dim])
             hidden = tf.tanh(tf.matmul(input_data_emb, weight_h)) + b_1
             hidden_output = tf.matmul(hidden, softmax_u) + tf.matmul(input_data_emb, softmax_w) + b_2
-            clip_output = tf.clip_by_value(hidden_output, -args.grad_clip, args.grad_clip)
-            output = tf.nn.softmax(clip_output)
+            output = tf.nn.softmax(hidden_output)
             return output
 
         outputs = infer_output(input_data)
         one_hot_targets = tf.one_hot(tf.squeeze(targets), args.vocab_size, 1.0, 0.0)
         loss = -tf.reduce_mean(tf.reduce_sum(tf.log(outputs) * one_hot_targets, 1))
-        optimizer = tf.train.AdagradOptimizer(0.1).minimize(loss)
+        # Clip grad.
+        optimizer = tf.train.AdagradOptimizer(0.1)
+        gvs = optimizer.compute_gradients(loss)
+        capped_gvs = [(tf.clip_by_value(grad, -args.grad_clip, args.grad_clip), var) for grad, var in gvs]
+        optimizer = optimizer.apply_gradients(capped_gvs)
 
         embeddings_norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
         normalized_embeddings = embeddings / embeddings_norm
