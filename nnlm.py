@@ -48,7 +48,7 @@ def main():
                                                         stddev=1.0 / math.sqrt(args.hidden_num)))
 
             b_1 = tf.Variable(tf.random_normal([args.hidden_num]))
-            b_2 = tf.Variable(tf.random_normal([args.batch_size, args.vocab_size]))
+            b_2 = tf.Variable(tf.random_normal([args.vocab_size]))
 
         def infer_output(input_data):
             """
